@@ -152,13 +152,13 @@
       "languageVersion": "2.19"
     },
     {
-      "name": "source_gen_example",
+      "name": "duchow_json",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2023-10-29T09:42:25.693872Z",
+  "generated": "2023-10-29T11:13:40.197651Z",
   "generator": "pub",
   "generatorVersion": "3.1.5"
 }

@@ -12,7 +12,7 @@ builders:
   #   combine the parts from each builder into one part file.
 
   property_multiply:
-    import: "package:json_generator/builder.dart"
+    import: "package:duchow_json/builder.dart"
     builder_factories: ["jsonBuilder"]
     build_extensions: {".dart": ["json.g.part"]}
     auto_apply: dependents
