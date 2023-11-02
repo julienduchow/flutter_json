@@ -145,7 +145,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       return JsonType(convertToJsonPost: "!.inMilliseconds", convertToObjectPre: "Duration(milliseconds:(", convertToObjectPost: "))");
     }
     if(field.type.toString().contains("<")) {
-      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<")));
+      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<") + 1));
     } else {
       return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length));
     }
