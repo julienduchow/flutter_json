@@ -213,7 +213,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
           listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">") + 1), metaClass),
           referenceClassName: refClassName);
     }
-    if (dartType.toString() == "int?") {
+    if (dartType.toString() == "int?" || dartType.toString() == "int") {
       return JsonType();
     } else if (dartType.toString() == "double?") {
       return JsonType();
@@ -223,6 +223,8 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       return JsonType(convertToJsonPost: "" /*""" ? \"true\" : \"false\""*/);
     } else if (dartType.toString() == "DateTime?") {
       return JsonType();
+    } else if (dartType.toString() == "Duration?") {
+      return JsonType(convertToJsonPost: "!.inMilliseconds", convertToObjectPre: "Duration(milliseconds:(", convertToObjectPost: "))");
     }
     String refName = "";
     if (dartType.toString().contains("<")) {
