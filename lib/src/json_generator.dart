@@ -210,7 +210,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       }
 
       return JsonType(
-          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")), metaClass),
+          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">") + 1), metaClass),
           referenceClassName: refClassName);
     }
     if (dartType.toString() == "int?") {
@@ -228,7 +228,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     if (dartType.toString().contains("<")) {
       refName = dartType.toString().substring(0, dartType.toString().indexOf("<"));
     } else {
-      refName = dartType.toString().substring(0, dartType.toString().length);
+      refName = dartType.toString().substring(0, dartType.toString().length - 1);
     }
     if (metaClass.genericMappings != null) {
       metaClass.genericMappings!.forEach((key, value) {
