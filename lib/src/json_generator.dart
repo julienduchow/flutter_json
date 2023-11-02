@@ -147,7 +147,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     if(field.type.toString().contains("<")) {
       return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<")));
     } else {
-      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length));
+      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length -1));
     }
   }
 }
