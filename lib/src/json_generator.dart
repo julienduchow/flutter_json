@@ -40,13 +40,13 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       stringBuffer.writeln("if(" + metaClass.instanceName + "." + metaField.fieldName + " != null) {");
       String content;
       if (metaField.jsonType!.listTypeType != null) {
-        content = metaClass.instanceName + "." + metaField.fieldName + ".map((data1) => " + doMappingTo(metaField.jsonType!.listTypeType!, 1) + ").toList();";
+        content = metaClass.instanceName + "." + metaField.fieldName + "!.map((data1) => " + doMappingTo(metaField.jsonType!.listTypeType!, 1) + ").toList();";
         //content = 'List<' + metaField.jsonType.referenceClassName + '>.from(map[\"' + metaField.jsonType.referenceClassName + "\"].map((data) => data).toList())";
         //content = metaField.jsonType.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType.convertToJsonPost;
       } else {
         content = metaField.jsonType!.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType!.convertToJsonPost;
         if (metaField.jsonType!.referenceClassName != null) {
-          content = metaField.jsonType!.referenceClassName! + "Json().toJson(" + content + ")";
+          content = metaField.jsonType!.referenceClassName! + "Json().toJson(" + content + "!)";
         }
       }
 
