@@ -226,9 +226,9 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     }
     String refName = "";
     if (dartType.toString().contains("<")) {
-      refName = dartType.toString().substring(0, dartType.toString().indexOf("<") + 1);
+      refName = dartType.toString().substring(0, dartType.toString().indexOf("<"));
     } else {
-      refName = dartType.toString().substring(0, dartType.toString().length - 1);
+      refName = dartType.toString().substring(0, dartType.toString().length);
     }
     if (metaClass.genericMappings != null) {
       metaClass.genericMappings!.forEach((key, value) {
