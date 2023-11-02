@@ -117,7 +117,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     print(field.type.toString());
     if(field.type.toString().startsWith("List<")) {
       //print("List detected! -> " + field.type.toString().substring(field.type.toString().indexOf("<") + 1, field.type.toString().indexOf(">") - 1));
-      return JsonType(listTypeName: field.type.toString().substring(field.type.toString().indexOf("<") + 1, field.type.toString().indexOf(">") - 1));
+      return JsonType(listTypeName: field.type.toString().substring(field.type.toString().indexOf("<") + 1, field.type.toString().indexOf(">")));
     }
     if (field.type.toString() == "int?") {
       return JsonType();
@@ -145,7 +145,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       return JsonType(convertToJsonPost: "!.inMilliseconds", convertToObjectPre: "Duration(milliseconds:(", convertToObjectPost: "))");
     }
     if(field.type.toString().contains("<")) {
-      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<") + 1));
+      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<")));
     } else {
       return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length));
     }
