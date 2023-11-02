@@ -102,7 +102,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
           doMappingFrom(jsonType.listTypeType!, c + 1) +
           ").toList())";
       //} else if(isPrimaryType(jsonType.referenceClassName)) {
-    } else if (jsonType.referenceClassName == null) {
+    } else if (jsonType.referenceClassName == null || isPrimaryType(jsonType.referenceClassName!)) {
       return 'data' + c.toString();
     } else {
       return jsonType.referenceClassName! + "Json().fromJson(data" + c.toString() + ")";
@@ -113,7 +113,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     if (jsonType.listTypeType != null) {
       return "data" + c.toString() + ".map((data" + (c + 1).toString() + ") => " + doMappingTo(jsonType.listTypeType!, c + 1) + ").toList()";
       //} else if(isPrimaryType(jsonType.referenceClassName)) {
-    } else if (jsonType.referenceClassName == null) {
+    } else if (jsonType.referenceClassName == null || isPrimaryType(jsonType.referenceClassName!)) {
       return 'data' + c.toString();
     } else {
       return jsonType.referenceClassName! + "Json().toJson(data" + c.toString() + ")";
