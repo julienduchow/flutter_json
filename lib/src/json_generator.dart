@@ -39,11 +39,11 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       stringBuffer.writeln("if(" + metaClass.instanceName + "." + metaField.fieldName + " != null) {");
       String content;
       if(metaField.jsonType.listTypeName != null) {
-        content = metaClass.instanceName + "." + metaField.fieldName + '.map((e) => ' + metaField.jsonType.listTypeName! + "Json().toJson(e)).toList()";
+        content = metaClass.instanceName + "." + metaField.fieldName + '!.map((e) => ' + metaField.jsonType.listTypeName! + "Json().toJson(e)).toList()";
       } else {
         content = metaField.jsonType.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType.convertToJsonPost;
         if(metaField.jsonType.referenceClassName != null) {
-          content = metaField.jsonType.referenceClassName! + "Json().toJson(" + content + ")";
+          content = metaField.jsonType.referenceClassName! + "Json().toJson(" + content + "!)";
         }
       }
 
@@ -147,7 +147,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     if(field.type.toString().contains("<")) {
       return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<")));
     } else {
-      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length - 1));
+      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length));
     }
   }
 }
