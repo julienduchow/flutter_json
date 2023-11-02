@@ -199,7 +199,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
   JsonType getJsonTypeForDartType(String dartType, MetaClass metaClass) {
     //print(dartType);
     if (dartType.toString().startsWith("List<")) {
-      String refClassName = dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")).replaceAll("*", "");
+      String refClassName = dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")).replaceAll("?", "");
 
       if (metaClass.genericMappings != null) {
         metaClass.genericMappings!.forEach((key, value) {
