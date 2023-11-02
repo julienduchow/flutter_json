@@ -9,6 +9,8 @@ import 'package:source_gen/source_gen.dart';
 import '../annotations.dart';
 
 class JsonGenerator extends GeneratorForAnnotation<json> {
+  const JsonGenerator();
+
   @override
   generateForAnnotatedElement(Element element, ConstantReader annotation, BuildStep buildStep) {
     MetaClass metaClass = generateMetaData(element);
@@ -24,8 +26,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
 
   void generateHead(MetaClass metaClass, StringBuffer stringBuffer) {
     stringBuffer.writeln("");
-    stringBuffer.writeln(
-        "// JSON class for " + metaClass.className + " serving basic methods for serialize and deserialize " + metaClass.className + ".");
+    stringBuffer.writeln("// JSON class for " + metaClass.className + " serving basic methods for serialize and deserialize " + metaClass.className + ".");
     stringBuffer.writeln("");
     stringBuffer.writeln("class " + metaClass.className + "Json extends JsonAble<" + metaClass.className + "> {");
     stringBuffer.writeln("");
@@ -34,20 +35,22 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
   void generateToJson(MetaClass metaClass, StringBuffer stringBuffer) {
     stringBuffer.writeln("Map<String, dynamic> toJson (" + metaClass.className + " " + metaClass.instanceName + ") {");
     stringBuffer.writeln("Map<String, dynamic> map = Map();");
-    stringBuffer.write("map['type'] = '" + metaClass.className +  "';");
-    metaClass.listFields.forEach((metaField) {
+    stringBuffer.write("map['type'] = '" + metaClass.className + "';");
+    metaClass.listFields!.forEach((metaField) {
       stringBuffer.writeln("if(" + metaClass.instanceName + "." + metaField.fieldName + " != null) {");
       String content;
-      if(metaField.jsonType.listTypeName != null) {
-        content = metaClass.instanceName + "." + metaField.fieldName + '!.map((e) => ' + metaField.jsonType.listTypeName! + "Json().toJson(e)).toList()";
+      if (metaField.jsonType!.listTypeType != null) {
+        content = metaClass.instanceName + "." + metaField.fieldName + ".map((data1) => " + doMappingTo(metaField.jsonType!.listTypeType!, 1) + ").toList();";
+        //content = 'List<' + metaField.jsonType.referenceClassName + '>.from(map[\"' + metaField.jsonType.referenceClassName + "\"].map((data) => data).toList())";
+        //content = metaField.jsonType.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType.convertToJsonPost;
       } else {
-        content = metaField.jsonType.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType.convertToJsonPost;
-        if(metaField.jsonType.referenceClassName != null) {
-          content = metaField.jsonType.referenceClassName! + "Json().toJson(" + content + "!)";
+        content = metaField.jsonType!.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType!.convertToJsonPost;
+        if (metaField.jsonType!.referenceClassName != null) {
+          content = metaField.jsonType!.referenceClassName! + "Json().toJson(" + content + ")";
         }
       }
 
-      stringBuffer.write("map[\"" + metaField.jsonName + "\"] = " + content +  ";");
+      stringBuffer.write("map[\"" + metaField.jsonName + "\"] = " + content + ";");
       stringBuffer.writeln("}");
     });
     stringBuffer.writeln("return map;");
@@ -60,15 +63,23 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
   void generateFromJson(MetaClass metaClass, StringBuffer stringBuffer) {
     stringBuffer.writeln(metaClass.className + " fromJson(Map<String, dynamic> map) {");
     stringBuffer.writeln(metaClass.className + " " + metaClass.instanceName + " = " + metaClass.className + "();");
-    metaClass.listFields.forEach((metaField) {
+    metaClass.listFields!.forEach((metaField) {
       stringBuffer.writeln("if (map[\"" + metaField.jsonName + "\"] != null) {");
       String content;
-      if(metaField.jsonType.listTypeName != null) {
-        content = 'List<' + metaField.jsonType.listTypeName! + '>.from(map[\"' + metaField.jsonName + "\"].map((data) => " + metaField.jsonType.listTypeName! + "Json().fromJson(data)).toList())";
+      if (metaField.jsonType!.listTypeType != null) {
+        content = 'List<' +
+            metaField.jsonType!.referenceClassName! +
+            '>.from(map[\"' +
+            metaField.jsonName +
+            "\"].map((data1) => " +
+            doMappingFrom(metaField.jsonType!.listTypeType!, 1) +
+            ").toList())";
+        //content = 'List<' + metaField.jsonType.referenceClassName + '>.from(map[\"' + metaField.jsonType.referenceClassName + "\"].map((data) => data).toList())";
+        //content = metaField.jsonType.convertToObjectPre + "map[\"" + metaField.jsonName + "\"]" + metaField.jsonType.convertToObjectPost;
       } else {
-        content = metaField.jsonType.convertToObjectPre + "map[\"" + metaField.jsonName + "\"]" + metaField.jsonType.convertToObjectPost;
-        if(metaField.jsonType.referenceClassName != null) {
-          content = metaField.jsonType.referenceClassName! + "Json().fromJson(" + content + ")";
+        content = metaField.jsonType!.convertToObjectPre + "map[\"" + metaField.jsonName + "\"]" + metaField.jsonType!.convertToObjectPost;
+        if (metaField.jsonType!.referenceClassName != null) {
+          content = metaField.jsonType!.referenceClassName! + "Json().fromJson(" + content + ")";
         }
       }
       stringBuffer.write(metaClass.instanceName + "." + metaField.fieldName + " = " + content + ";");
@@ -79,7 +90,39 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     stringBuffer.writeln("");
   }
 
+  String doMappingFrom(JsonType jsonType, int c) {
+    if (jsonType.listTypeType != null) {
+      return "List<" +
+          jsonType.referenceClassName! +
+          ">.from(data" +
+          c.toString() +
+          ".map((data" +
+          (c + 1).toString() +
+          ") => " +
+          doMappingFrom(jsonType.listTypeType!, c + 1) +
+          ").toList())";
+      //} else if(isPrimaryType(jsonType.referenceClassName)) {
+    } else if (jsonType.referenceClassName == null) {
+      return 'data' + c.toString();
+    } else {
+      return jsonType.referenceClassName! + "Json().fromJson(data" + c.toString() + ")";
+    }
+  }
+
+  String doMappingTo(JsonType jsonType, int c) {
+    if (jsonType.listTypeType != null) {
+      return "data" + c.toString() + ".map((data" + (c + 1).toString() + ") => " + doMappingTo(jsonType.listTypeType!, c + 1) + ").toList()";
+      //} else if(isPrimaryType(jsonType.referenceClassName)) {
+    } else if (jsonType.referenceClassName == null) {
+      return 'data' + c.toString();
+    } else {
+      return jsonType.referenceClassName! + "Json().toJson(data" + c.toString() + ")";
+    }
+  }
+
   // combinedUpdateData.listMatchInformations = List<MatchInformation>.from(map["listMatchInformations"].map((data) => MatchInformationJson().fromJson(data)).toList());
+
+  bool isPrimaryType(String type) => type == 'int' || type == 'bool' || type == 'double' || type == 'String';
 
   void generateFooter(MetaClass metaClass, StringBuffer stringBuffer) {
     stringBuffer.writeln("}");
@@ -88,67 +131,113 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
   // Helper Methods
 
   MetaClass generateMetaData(Element element) {
-    MetaClass metaClass = MetaClass(className: element.displayName,
-        instanceName: element.displayName.substring(0, 1).toLowerCase() + element.displayName.substring(1),
-        jsonName: element.displayName, listFields: getFieldsWithSuper(element as ClassElement));
+    MetaClass metaClass = MetaClass(className: element.displayName, instanceName: element.displayName.substring(0, 1).toLowerCase() + element.displayName.substring(1),
+        jsonName: element.displayName);
+    if (element.metadata[0].computeConstantValue()!.getField("genericMappings") != null &&
+        element.metadata[0].computeConstantValue()!.getField("genericMappings")!.toMapValue() != null) {
+      metaClass.genericMappings =
+          element.metadata[0].computeConstantValue()!.getField("genericMappings")!.toMapValue()!.map((key, value) => MapEntry(key!.toStringValue(), value!.toStringValue()));
+    }
+    metaClass.listFields = getFieldsWithSuper(element as ClassElement, metaClass);
     return metaClass;
   }
 
-  List<MetaField> getFieldsWithSuper(ClassElement clazz) {
+  List<MetaField> getFieldsWithSuper(ClassElement clazz, MetaClass metaClass) {
     List<MetaField> listFields = [];
     if (clazz.supertype != null && clazz.supertype.toString() != 'Object') {
-      listFields.addAll(getFieldsWithSuper(clazz.supertype!.element as ClassElement));
+      listFields.addAll(getFieldsWithSuper(clazz.supertype!.element as ClassElement, metaClass));
     }
-    clazz.fields.forEach((field) {
-      MetaField metaField = MetaField(fieldName: field.displayName,
-          fieldType: field.type.toString(), jsonName: field.displayName, jsonType: getJsonTypeForDartType(field));
-      field.metadata.forEach((element) {
-        //print(element.toString());
-      });
-      if(metaField.fieldName != 'hashCode' && metaField.fieldName != 'runtimeType') {
-        listFields.add(metaField);
-      }
 
+    clazz.typeParameters.forEach((element) {
+      print(element);
+    });
+    clazz.typeParameters.forEach((element) {
+      print(element.bound.toString());
+    });
+    clazz.typeParameters.forEach((element) {
+      print(element.displayName.toString());
+    });
+    clazz.typeParameters.forEach((element) {
+      print(element.name.toString());
+    });
+    clazz.fields.forEach((field) {
+      bool ignore = false;
+
+      field.metadata.forEach((element) {
+        if (element.element.toString().startsWith("JsonIgnore")) {
+          ignore = true;
+        }
+      });
+
+      if (!ignore) {
+        MetaField metaField = MetaField(fieldName: field.displayName, fieldType: field.type.toString(), jsonName: field.displayName);
+        metaField.jsonType = getJsonTypeForDartType(field.type.toString(), metaClass);
+        /*if(metaClass.className == 'X01GameProcessor') {
+        print(field.type.element.displayName);
+        print(field.type.element.runtimeType.toString());
+        print(field.runtimeType.toString());
+        print(field.type.element.hasOptionalTypeArgs);
+        field.type.element.metadata.forEach((element) {print(element.toString());});
+      }*/
+        if (field.type.toString() == 'DateTime*') {
+          metaField.jsonType!.convertToObjectPre = 'DateTime.parse(';
+          metaField.jsonType!.convertToObjectPost = ')';
+          metaField.jsonType!.convertToJsonPre = 'DateFormat("yyyy-MM-ddTHH:mm:ss.SSS\'Z\'").format(';
+          metaField.jsonType!.convertToJsonPost = ')';
+        }
+        field.metadata.forEach((element) {
+          //print(element.toString());
+        });
+        if (metaField.fieldName != 'hashCode' && metaField.fieldName != 'runtimeType') {
+          listFields.add(metaField);
+        }
+      }
     });
     return listFields;
   }
 
-  JsonType getJsonTypeForDartType(FieldElement field) {
-    print(field.type.toString());
-    if(field.type.toString().startsWith("List<")) {
-      //print("List detected! -> " + field.type.toString().substring(field.type.toString().indexOf("<") + 1, field.type.toString().indexOf(">") - 1));
-      return JsonType(listTypeName: field.type.toString().substring(field.type.toString().indexOf("<") + 1, field.type.toString().indexOf(">")));
-    }
-    if (field.type.toString() == "int?") {
-      return JsonType();
-    } else if (field.type.toString() == "double?") {
-      return JsonType();
-    } else if (field.type.toString() == "String?") {
-      return JsonType();
-    } else if (field.type.toString() == "bool?") {
-      return JsonType(convertToJsonPost: "! ? \"true\" : \"false\"");
-    } else if (field.type.toString() == "DateTime?") {
-      bool isTime = false;
-      bool isDate = false;
-      field.metadata.forEach((element) {
-        if(element.toString() == '@onlyTime? onlyTime()') isTime = true;
-        if(element.toString() == '@onlyDate? onlyDate()') isDate = true;
-      });
-      if(isTime) {
-        return JsonType(convertToJsonPost: "!.toIso8601String().substring(11,22)", convertToObjectPre: "DateTime.parse(\"1970-01-01T\" + ", convertToObjectPost: ')');
-      } else if (isDate) {
-        return JsonType(convertToJsonPost: "!.toIso8601String().substring(0,10)", convertToObjectPre: 'DateTime.parse(',convertToObjectPost: "+ \"T00:00:00.000\")");
-      } else {
-        return JsonType(convertToObjectPre: 'DateTime.parse(', convertToObjectPost: ')', convertToJsonPost: '!.toIso8601String()');
+  JsonType getJsonTypeForDartType(String dartType, MetaClass metaClass) {
+    //print(dartType);
+    if (dartType.toString().startsWith("List<")) {
+      String refClassName = dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")).replaceAll("*", "");
+
+      if (metaClass.genericMappings != null) {
+        metaClass.genericMappings!.forEach((key, value) {
+          print(key.toString());
+          print(value.toString());
+          if (key.toString() == refClassName) refClassName = value.toString();
+        });
       }
-    } else if (field.type.toString() == "Duration?") {
-      return JsonType(convertToJsonPost: "!.inMilliseconds", convertToObjectPre: "Duration(milliseconds:(", convertToObjectPost: "))");
+
+      return JsonType(
+          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")), metaClass),
+          referenceClassName: refClassName);
     }
-    if(field.type.toString().contains("<")) {
-      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().indexOf("<")));
+    if (dartType.toString() == "int?") {
+      return JsonType();
+    } else if (dartType.toString() == "double?") {
+      return JsonType();
+    } else if (dartType.toString() == "String?") {
+      return JsonType();
+    } else if (dartType.toString() == "bool?") {
+      return JsonType(convertToJsonPost: "" /*""" ? \"true\" : \"false\""*/);
+    } else if (dartType.toString() == "DateTime?") {
+      return JsonType();
+    }
+    String refName = "";
+    if (dartType.toString().contains("<")) {
+      refName = dartType.toString().substring(0, dartType.toString().indexOf("<"));
     } else {
-      return JsonType(referenceClassName: field.type.toString().substring(0,field.type.toString().length -1));
+      refName = dartType.toString().substring(0, dartType.toString().length - 1);
     }
+    if (metaClass.genericMappings != null) {
+      metaClass.genericMappings!.forEach((key, value) {
+        print(key.toString());
+        print(value.toString());
+        if (key.toString() == refName) refName = value.toString();
+      });
+    }
+    return JsonType(referenceClassName: refName);
   }
 }
 
@@ -156,16 +245,28 @@ class MetaClass {
   String className;
   String instanceName;
   String jsonName;
-  List<MetaField> listFields;
-  MetaClass({required this.className, required this.instanceName, required this.jsonName, required this.listFields});
+  Map? genericMappings;
+  List<MetaField>? listFields;
+
+  MetaClass({required this.className, required this.instanceName, required this.jsonName});
+
+  @override
+  String toString() {
+    return (className ?? 'null') + "\n" + (instanceName ?? 'null') + "\n" + (jsonName ?? 'null') + "\n[" + (listFields ?? 'null').toString() + "]";
+  }
 }
 
 class MetaField {
   String fieldName;
   String fieldType;
   String jsonName;
-  JsonType jsonType;
-  MetaField({required this.fieldName, required this.fieldType, required this.jsonName, required this.jsonType});
+  JsonType? jsonType;
+
+  MetaField({required this.fieldName, required this.fieldType, required this.jsonName});
+
+  String toString() {
+    return (fieldName ?? 'null') + "\n" + (fieldType ?? 'null') + "\n" + (jsonName ?? 'null') + "\n" + (jsonType ?? 'null').toString();
+  }
 }
 
 class JsonType {
@@ -174,7 +275,7 @@ class JsonType {
         this.convertToJsonPre = "",
         this.convertToJsonPost = "",
         this.convertToObjectPre = "",
-        this.listTypeName = null,
+        this.listTypeType = null,
         this.convertToObjectPost = "",
         this.referenceClassName});
 
@@ -184,6 +285,9 @@ class JsonType {
   String convertToJsonPost;
   String convertToObjectPre;
   String convertToObjectPost;
-  String? listTypeName;
+  JsonType? listTypeType;
 
+  String toString() {
+    return (referenceClassName ?? 'null') + "\n" + (listTypeType?.toString() ?? "null");
+  }
 }
