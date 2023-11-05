@@ -171,7 +171,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
 
       if (!ignore) {
         MetaField metaField = MetaField(fieldName: field.displayName, fieldType: field.type.toString(), jsonName: field.displayName);
-        metaField.jsonType = getJsonTypeForDartType(field.type.toString(), metaClass);
+        metaField.jsonType = getJsonTypeForDartType(field.type.toString(), metaClass, field);
         /*if(metaClass.className == 'X01GameProcessor') {
         print(field.type.element.displayName);
         print(field.type.element.runtimeType.toString());
@@ -179,15 +179,6 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
         print(field.type.element.hasOptionalTypeArgs);
         field.type.element.metadata.forEach((element) {print(element.toString());});
       }*/
-        if (field.type.toString() == 'DateTime?') {
-          metaField.jsonType!.convertToObjectPre = 'DateTime.parse(';
-          metaField.jsonType!.convertToObjectPost = ')';
-          metaField.jsonType!.convertToJsonPre = 'DateFormat("yyyy-MM-ddTHH:mm:ss.SSS\'Z\'").format(';
-          metaField.jsonType!.convertToJsonPost = '!)';
-        }
-        field.metadata.forEach((element) {
-          //print(element.toString());
-        });
         if (metaField.fieldName != 'hashCode' && metaField.fieldName != 'runtimeType') {
           listFields.add(metaField);
         }
@@ -196,7 +187,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     return listFields;
   }
 
-  JsonType getJsonTypeForDartType(String dartType, MetaClass metaClass) {
+  JsonType getJsonTypeForDartType(String dartType, MetaClass metaClass, FieldElement? field) {
     //print(dartType);
     if (dartType.toString().startsWith("List<")) {
       String refClassName = dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")).replaceAll("?", "");
@@ -210,7 +201,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       }
 
       return JsonType(
-          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">") + 1), metaClass),
+          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">") + 1), metaClass, null),
           referenceClassName: refClassName);
     }
     if (dartType.toString() == "int?" || dartType.toString() == "int") {
@@ -222,7 +213,19 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     } else if (dartType.toString() == "bool?") {
       return JsonType(convertToJsonPost: "" /*""" ? \"true\" : \"false\""*/);
     } else if (dartType.toString() == "DateTime?") {
-      return JsonType();
+      bool isTime = false;
+      bool isDate = false;
+      field?.metadata.forEach((element) {
+        if(element.toString() == '@onlyTime? onlyTime()') isTime = true;
+        if(element.toString() == '@onlyDate? onlyDate()') isDate = true;
+      });
+      if(isTime) {
+        return JsonType(convertToJsonPost: "!.toIso8601String().substring(11,22)", convertToObjectPre: "DateTime.parse(\"1970-01-01T\" + ", convertToObjectPost: ')');
+      } else if (isDate) {
+        return JsonType(convertToJsonPost: "!.toIso8601String().substring(0,10)", convertToObjectPre: 'DateTime.parse(',convertToObjectPost: "+ \"T00:00:00.000\")");
+      } else {
+        return JsonType(convertToObjectPre: 'DateTime.parse(', convertToObjectPost: ')', convertToJsonPost: '!.toIso8601String()');
+      }
     } else if (dartType.toString() == "Duration?") {
       return JsonType(convertToJsonPost: "!.inMilliseconds", convertToObjectPre: "Duration(milliseconds:(", convertToObjectPost: "))");
     }
