@@ -179,7 +179,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
         print(field.type.element.hasOptionalTypeArgs);
         field.type.element.metadata.forEach((element) {print(element.toString());});
       }*/
-        if (field.type.toString() == 'DateTime*') {
+        if (field.type.toString() == 'DateTime?') {
           metaField.jsonType!.convertToObjectPre = 'DateTime.parse(';
           metaField.jsonType!.convertToObjectPost = ')';
           metaField.jsonType!.convertToJsonPre = 'DateFormat("yyyy-MM-ddTHH:mm:ss.SSS\'Z\'").format(';
