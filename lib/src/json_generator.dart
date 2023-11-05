@@ -217,8 +217,8 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       bool isDate = false;
       field?.metadata.forEach((element) {
         print("TTTTTTTTTTTTTTTTTTTTTTT" + element.element.toString());
-        if(element.element.toString() == '@onlyTime? onlyTime()') isTime = true;
-        if(element.element.toString() == '@onlyDate? onlyDate()') isDate = true;
+        if(element.element.toString() == 'onlyTime onlyTime()') isTime = true;
+        if(element.element.toString() == 'onlyDate onlyDate()') isDate = true;
       });
       if(isTime) {
         return JsonType(convertToJsonPost: "!.toIso8601String().substring(11,22)", convertToObjectPre: "DateTime.parse(\"1970-01-01T\" + ", convertToObjectPost: ')');
