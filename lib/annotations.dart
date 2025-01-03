@@ -3,7 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 class json {
-  const json();
+  const json(this.genericMappings);
+  final Map<String, String> genericMappings;
 }
 
 class onlyDate {
