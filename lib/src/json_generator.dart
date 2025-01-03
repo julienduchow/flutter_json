@@ -42,7 +42,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       if (metaField.jsonType!.listTypeType != null) {
         content = metaClass.instanceName + "." + metaField.fieldName + "!.map((data1) => " + doMappingTo(metaField.jsonType!.listTypeType!, 1) + ").toList();";
         //content = 'List<' + metaField.jsonType.referenceClassName + '>.from(map[\"' + metaField.jsonType.referenceClassName + "\"].map((data) => data).toList())";
-        //content = metaField.jsonType.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType.convertToJsonPost;
+        //content = metaField.jsonType.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType.convertToJsonPost;database
       } else {
         content = metaField.jsonType!.convertToJsonPre + metaClass.instanceName + "." + metaField.fieldName + metaField.jsonType!.convertToJsonPost;
         if (metaField.jsonType!.referenceClassName != null) {
@@ -201,7 +201,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       }
 
       return JsonType(
-          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">") + 1), metaClass, null),
+          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")), metaClass, null),
           referenceClassName: refClassName);
     }
     if (dartType.toString() == "int?" || dartType.toString() == "int") {
