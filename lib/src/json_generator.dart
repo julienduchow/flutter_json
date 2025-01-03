@@ -201,7 +201,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       }
 
       return JsonType(
-          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")), metaClass, null),
+          listTypeType: getJsonTypeForDartType(dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().indexOf(">") + 1), metaClass, null),
           referenceClassName: refClassName);
     }
     if (dartType.toString() == "int?" || dartType.toString() == "int") {
