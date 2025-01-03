@@ -7,6 +7,10 @@ class json {
   final Map<String, String>? genericMappings;
 }
 
+class jsonIgnore {
+  const jsonIgnore();
+}
+
 class onlyDate {
   const onlyDate();
 }
