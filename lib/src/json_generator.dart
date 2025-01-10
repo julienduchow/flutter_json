@@ -149,16 +149,16 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     }
 
     clazz.typeParameters.forEach((element) {
-      print(element);
+      //print(element);
     });
     clazz.typeParameters.forEach((element) {
-      print(element.bound.toString());
+      //print(element.bound.toString());
     });
     clazz.typeParameters.forEach((element) {
-      print(element.displayName.toString());
+      //print(element.displayName.toString());
     });
     clazz.typeParameters.forEach((element) {
-      print(element.name.toString());
+      //print(element.name.toString());
     });
     clazz.fields.forEach((field) {
       bool ignore = false;
@@ -179,11 +179,11 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
         MetaField metaField = MetaField(fieldName: field.displayName, fieldType: field.type.toString(), jsonName: field.displayName);
         metaField.jsonType = getJsonTypeForDartType(field.type.toString(), metaClass, field);
         /*if(metaClass.className == 'X01GameProcessor') {
-        print(field.type.element.displayName);
-        print(field.type.element.runtimeType.toString());
-        print(field.runtimeType.toString());
-        print(field.type.element.hasOptionalTypeArgs);
-        field.type.element.metadata.forEach((element) {print(element.toString());});
+        //print(field.type.element.displayName);
+        //print(field.type.element.runtimeType.toString());
+        //print(field.runtimeType.toString());
+        //print(field.type.element.hasOptionalTypeArgs);
+        field.type.element.metadata.forEach((element) {//print(element.toString());});
       }*/
         if (metaField.fieldName != 'hashCode' && metaField.fieldName != 'runtimeType') {
           listFields.add(metaField);
@@ -194,14 +194,14 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
   }
 
   JsonType getJsonTypeForDartType(String dartType, MetaClass metaClass, FieldElement? field) {
-    //print(dartType);
+    ////print(dartType);
     if (dartType.toString().startsWith("List<")) {
       String refClassName = dartType.toString().substring(dartType.toString().indexOf("<") + 1, dartType.toString().lastIndexOf(">")).replaceAll("?", "");
 
       if (metaClass.genericMappings != null) {
         metaClass.genericMappings!.forEach((key, value) {
-          print(key.toString());
-          print(value.toString());
+          //print(key.toString());
+          //print(value.toString());
           if (key.toString() == refClassName) refClassName = value.toString();
         });
       }
@@ -222,7 +222,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       bool isTime = false;
       bool isDate = false;
       field?.metadata.forEach((element) {
-        print("TTTTTTTTTTTTTTTTTTTTTTT" + element.element.toString());
+        //print("TTTTTTTTTTTTTTTTTTTTTTT" + element.element.toString());
         if(element.element.toString() == 'onlyTime onlyTime()') isTime = true;
         if(element.element.toString() == 'onlyDate onlyDate()') isDate = true;
       });
@@ -244,8 +244,8 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
     }
     if (metaClass.genericMappings != null) {
       metaClass.genericMappings!.forEach((key, value) {
-        print(key.toString());
-        print(value.toString());
+        //print(key.toString());
+        //print(value.toString());
         if (key.toString() == refName) refName = value.toString();
       });
     }
