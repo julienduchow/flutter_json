@@ -145,6 +145,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
   List<MetaField> getFieldsWithSuper(ClassElement clazz, MetaClass metaClass) {
     List<MetaField> listFields = [];
     if (clazz.supertype != null && clazz.supertype.toString() != 'Object') {
+      print(clazz.supertype!.element?.toString());
       listFields.addAll(getFieldsWithSuper(clazz.supertype!.element as ClassElement, metaClass));
     }
 
