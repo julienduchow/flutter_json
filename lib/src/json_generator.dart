@@ -165,7 +165,7 @@ class JsonGenerator extends GeneratorForAnnotation<json> {
       bool ignore = false;
 
       field.metadata.forEach((element) {
-        if (element.element.toString() == "id id()" || element.element.toString() == "jsonIgnore jsonIgnore()") {
+        if (element.element.toString() == "jsonIgnore jsonIgnore()") {
           ignore = true;
         }
       });
